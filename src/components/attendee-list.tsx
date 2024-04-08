@@ -4,8 +4,39 @@ import { Table } from "./table/table"
 import { TableHeader } from "./table/table-header"
 import { TableData } from "./table/table-data"
 import { TableRow } from "./table/table-row"
+import { ChangeEvent, useState } from "react"
+import { attendees } from "../data/attendees"
+import dayjs from "dayjs"
+import relativeTime from "dayjs/plugin/relativeTime"
+import "dayjs/locale/pt-br"
+
+dayjs.extend(relativeTime)
+dayjs.locale("pt-br")
 
 export function AttendeeList(){
+    const [page, setPage] = useState(1)
+
+    const totalPages = Math.ceil(attendees.length / 10)
+
+    function handleInput(event: ChangeEvent<HTMLInputElement>){
+
+    }
+
+    function goToNextPage(){
+        setPage(page + 1)
+    }
+
+    function goToPreviousPage(){
+        setPage(page - 1)
+    }
+
+    function goToLastPage(){
+        setPage(totalPages)
+    }
+
+    function goToFirstPage(){
+        setPage(1)
+    }
 
     return (
         <div className="flex flex-col gap-4">
@@ -26,18 +57,18 @@ export function AttendeeList(){
                     </tr>
                 </thead>
                 <tbody>
-                    {Array.from({length:8}).map((_, i)=>(
-                        <TableRow key={i} >
+                    {attendees.slice((page -1) * 10, page * 10 ).map((attendee)=>(
+                        <TableRow key={attendee.id} >
                             <TableData><input type="checkbox" /></TableData>
-                            <TableData>12303</TableData>
+                            <TableData>{attendee.id}</TableData>
                             <TableData>
                                 <div className="flex flex-col gap-1">
-                                    <span className="font-semibold text-white">Diego Fernandes</span>
-                                    <span>diego@rocket.com.bt</span>
+                                    <span className="font-semibold text-white">{attendee.name}</span>
+                                    <span>{attendee.email}</span>
                                 </div>
                             </TableData>
-                            <TableData>4 dias atras</TableData>
-                            <TableData>3 dias atras</TableData>
+                            <TableData>{dayjs().to(attendee.createdAt)}</TableData>
+                            <TableData>{dayjs().to(attendee.checkedInAt)}</TableData>
                             <TableData>
                                 <IconButton transparent>
                                     <MoreHorizontal className="size-4" />
@@ -48,21 +79,21 @@ export function AttendeeList(){
                 </tbody>
                 <tfoot>
                     <tr>
-                        <TableData colSpan={3}>Mostrando 10 de 229 itens</TableData>
+                        <TableData colSpan={3}>Mostrando 10 de {attendees.length} itens</TableData>
                         <TableData className="text-right" colSpan={3}>
                             <div className="inline-flex items-center gap-8">
-                                <span>Página 1 de 23</span>
+                                <span>Página {page} de {totalPages}</span>
                                 <div className="flex gap-1.5">
-                                    <IconButton>
+                                    <IconButton onClick={goToFirstPage} >
                                         <ChevronsLeft className="size-4" />
                                     </IconButton>
-                                    <IconButton>
+                                    <IconButton onClick={goToPreviousPage} disabled={page === 1}>
                                         <ChevronLeft className="size-4" />
                                     </IconButton>
-                                    <IconButton>
+                                    <IconButton onClick={goToNextPage} disabled={page === totalPages}>
                                         <ChevronRight className="size-4" />
                                     </IconButton>
-                                    <IconButton>
+                                    <IconButton onClick={goToLastPage}>
                                         <ChevronsRight className="size-4" />
                                     </IconButton>
                                 </div>
